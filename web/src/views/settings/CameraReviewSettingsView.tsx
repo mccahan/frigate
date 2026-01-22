@@ -1,7 +1,6 @@
 import Heading from "@/components/ui/heading";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster, toast } from "sonner";
 import {
   Form,
   FormControl,
@@ -159,12 +158,11 @@ export default function CameraReviewSettingsView({
         });
       }
       setChangedValue(true);
-      setUnsavedChanges(true);
       setSelectDetections(isChecked as boolean);
     },
     // we know that these deps are correct
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [watchedAlertsZones, setUnsavedChanges],
+    [watchedAlertsZones],
   );
 
   const saveToConfig = useCallback(
@@ -199,8 +197,6 @@ export default function CameraReviewSettingsView({
                 position: "top-center",
               },
             );
-            setChangedValue(false);
-            setUnsavedChanges(false);
             updateConfig();
           } else {
             toast.error(
@@ -233,14 +229,7 @@ export default function CameraReviewSettingsView({
           setIsLoading(false);
         });
     },
-    [
-      updateConfig,
-      setIsLoading,
-      selectedCamera,
-      cameraConfig,
-      t,
-      setUnsavedChanges,
-    ],
+    [updateConfig, setIsLoading, selectedCamera, cameraConfig, t],
   );
 
   const onCancel = useCallback(() => {
@@ -506,7 +495,6 @@ export default function CameraReviewSettingsView({
                                         )}
                                         onCheckedChange={(checked) => {
                                           setChangedValue(true);
-                                          setUnsavedChanges(true);
                                           return checked
                                             ? field.onChange([
                                                 ...field.value,
@@ -612,8 +600,6 @@ export default function CameraReviewSettingsView({
                                             zone.name,
                                           )}
                                           onCheckedChange={(checked) => {
-                                            setChangedValue(true);
-                                            setUnsavedChanges(true);
                                             return checked
                                               ? field.onChange([
                                                   ...field.value,
@@ -713,6 +699,7 @@ export default function CameraReviewSettingsView({
                   )}
                 />
               </div>
+              <Separator className="my-2 flex bg-secondary" />
 
               <div className="flex w-full flex-row items-center gap-2 pt-2 md:w-[25%]">
                 <Button
@@ -725,7 +712,7 @@ export default function CameraReviewSettingsView({
                 </Button>
                 <Button
                   variant="select"
-                  disabled={!changedValue || isLoading}
+                  disabled={isLoading}
                   className="flex flex-1"
                   aria-label={t("button.save", { ns: "common" })}
                   type="submit"

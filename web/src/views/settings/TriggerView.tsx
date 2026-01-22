@@ -664,7 +664,9 @@ export default function TriggerView({
                     <TableHeader className="sticky top-0 bg-muted/50">
                       <TableRow>
                         <TableHead className="w-4"></TableHead>
-                        <TableHead>{t("triggers.table.name")}</TableHead>
+                        <TableHead>
+                          {t("name", { ns: "triggers.table.name" })}
+                        </TableHead>
                         <TableHead>{t("triggers.table.type")}</TableHead>
                         <TableHead>
                           {t("triggers.table.lastTriggered")}
