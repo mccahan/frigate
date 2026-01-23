@@ -602,6 +602,8 @@ export function RecordingView({
                 showReviewed
                 setShowReviewed={() => {}}
                 mainCamera={mainCamera}
+                reviewId={recording?.reviewId}
+                timelineType={timelineType}
                 onUpdateFilter={(newFilter: ReviewFilter) => {
                   const updatedCameras =
                     newFilter.cameras === undefined

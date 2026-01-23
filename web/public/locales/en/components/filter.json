@@ -121,6 +121,12 @@
   "zoneMask": {
     "filterBy": "Filter by zone mask"
   },
+  "copyLink": {
+    "label": "Copy Link",
+    "toast": {
+      "success": "Link copied to clipboard"
+    }
+  },
   "recognizedLicensePlates": {
     "title": "Recognized License Plates",
     "loadFailed": "Failed to load recognized license plates.",

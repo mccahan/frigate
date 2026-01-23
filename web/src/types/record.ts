@@ -39,6 +39,7 @@ export type RecordingStartingPoint = {
   startTime: number;
   severity: ReviewSeverity;
   timelineType?: TimelineType;
+  reviewId?: string;
 };
 
 export type RecordingPlayerError = "stalled" | "startup";

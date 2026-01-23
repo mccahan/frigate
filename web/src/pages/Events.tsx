@@ -25,6 +25,7 @@ import { RecordingView } from "@/views/recording/RecordingView";
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 
 export default function Events() {
@@ -53,17 +54,14 @@ export default function Events() {
     false,
   );
 
-  const [notificationTab, setNotificationTab] =
-    useState<TimelineType>("timeline");
-
-  useSearchEffect("tab", (tab: string) => {
-    if (tab === "timeline" || tab === "events" || tab === "detail") {
-      setNotificationTab(tab as TimelineType);
-    }
-    return true;
-  });
+  const [searchParams] = useSearchParams();
 
   useSearchEffect("id", (reviewId: string) => {
+    // Read tab directly from URL to avoid timing issues with state updates
+    const tabParam = searchParams.get("tab");
+    const tabValue: TimelineType =
+      tabParam === "events" || tabParam === "detail" ? tabParam : "timeline";
+
     axios
       .get(`review/${reviewId}`)
       .then((resp) => {
@@ -80,7 +78,8 @@ export default function Events() {
               camera: resp.data.camera,
               startTime,
               severity: resp.data.severity,
-              timelineType: notificationTab,
+              timelineType: tabValue,
+              reviewId,
             },
             true,
           );

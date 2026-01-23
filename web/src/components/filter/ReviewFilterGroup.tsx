@@ -9,8 +9,10 @@ import {
   ReviewSeverity,
   ReviewSummary,
 } from "@/types/review";
+import { TimelineType } from "@/types/timeline";
 import { getEndOfDayTimestamp } from "@/utils/dateUtil";
 import { FaCheckCircle, FaFilter, FaRunning } from "react-icons/fa";
+import { LuLink } from "react-icons/lu";
 import { isDesktop, isMobile } from "react-device-detect";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
@@ -26,6 +28,8 @@ import PlatformAwareDialog from "../overlay/dialog/PlatformAwareDialog";
 import { useTranslation } from "react-i18next";
 import { getTranslatedLabel } from "@/utils/i18n";
 import { useAllowedCameras } from "@/hooks/use-allowed-cameras";
+import copy from "copy-to-clipboard";
+import { toast } from "sonner";
 
 const REVIEW_FILTERS = [
   "cameras",
@@ -53,6 +57,8 @@ type ReviewFilterGroupProps = {
   filterList?: FilterList;
   showReviewed: boolean;
   mainCamera?: string;
+  reviewId?: string;
+  timelineType?: TimelineType;
   setShowReviewed: (show: boolean) => void;
   onUpdateFilter: (filter: ReviewFilter) => void;
   setMotionOnly: React.Dispatch<React.SetStateAction<boolean>>;
@@ -68,10 +74,13 @@ export default function ReviewFilterGroup({
   filterList,
   showReviewed,
   mainCamera,
+  reviewId,
+  timelineType,
   setShowReviewed,
   onUpdateFilter,
   setMotionOnly,
 }: ReviewFilterGroupProps) {
+  const { t } = useTranslation(["components/filter"]);
   const { data: config } = useSWR<FrigateConfig>("config");
   const allowedCameras = useAllowedCameras();
 
@@ -192,6 +201,41 @@ export default function ReviewFilterGroup({
     [filter, onUpdateFilter],
   );
 
+  const onCopyLink = useCallback(() => {
+    const url = new URL(window.location.href);
+
+    // Clear existing filter params
+    url.searchParams.delete("cameras");
+    url.searchParams.delete("labels");
+    url.searchParams.delete("zones");
+    url.searchParams.delete("id");
+    url.searchParams.delete("tab");
+
+    // Add review ID if viewing a specific review
+    if (reviewId) {
+      url.searchParams.set("id", reviewId);
+    }
+
+    // Add tab if not the default timeline view
+    if (timelineType && timelineType !== "timeline") {
+      url.searchParams.set("tab", timelineType);
+    }
+
+    // Add current filter params
+    if (filter?.cameras && filter.cameras.length > 0) {
+      url.searchParams.set("cameras", filter.cameras.join(","));
+    }
+    if (filter?.labels && filter.labels.length > 0) {
+      url.searchParams.set("labels", filter.labels.join(","));
+    }
+    if (filter?.zones && filter.zones.length > 0) {
+      url.searchParams.set("zones", filter.zones.join(","));
+    }
+
+    copy(url.toString());
+    toast.success(t("copyLink.toast.success"));
+  }, [filter, reviewId, timelineType, t]);
+
   return (
     <div className="flex justify-center gap-2">
       {filters.includes("cameras") && (
@@ -263,6 +307,15 @@ export default function ReviewFilterGroup({
           setShowExportPreview={() => {}}
         />
       )}
+      <Button
+        className="flex items-center gap-2"
+        aria-label={t("copyLink.label")}
+        size="sm"
+        onClick={onCopyLink}
+      >
+        <LuLink className="text-secondary-foreground" />
+        <span className="hidden md:block">{t("copyLink.label")}</span>
+      </Button>
     </div>
   );
 }
